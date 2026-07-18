@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ibrahem Slman — Backend Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0c12;
+    --surface:#12151f;
+    --surface-2:#1a1f2e;
+    --surface-3:#222840;
+    --line:rgba(255,255,255,0.09);
+    --line-strong:rgba(255,255,255,0.16);
+    --text:#eef0f6;
+    --text-dim:#96a0b8;
+    --text-dimmer:#5f6a85;
+    --purple:#8b7cff;   /* Presentation layer */
+    --purple-dim:rgba(139,124,255,0.15);
+    --teal:#45d6c4;     /* Business logic layer */
+    --teal-dim:rgba(69,214,196,0.15);
+    --amber:#ffb454;    /* Data access layer */
+    --amber-dim:rgba(255,180,84,0.15);
+    --danger:#ff6b6b;
+    --radius:14px;
+    --maxw:1180px;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--purple);color:#fff;}
+
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+  section{position:relative;padding:120px 0;}
+  @media (max-width:720px){ section{padding:80px 0;} .wrap{padding:0 20px;} }
+
+  /* ---------- scroll reveal ---------- */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  .reveal-stagger > *{opacity:0;transform:translateY(20px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);}
+  .reveal-stagger.in > *{opacity:1;transform:translateY(0);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+  }
+
+  /* ---------- nav ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(10,12,18,0.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px;}
+  .logo{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;letter-spacing:.5px;color:var(--text);display:flex;align-items:center;gap:6px;}
+  .logo .tag{color:var(--purple);}
+  .navlinks{display:flex;gap:36px;font-size:14px;color:var(--text-dim);}
+  .navlinks a{position:relative;padding:4px 0;transition:color .25s;}
+  .navlinks a:hover{color:var(--text);}
+  .navlinks a::after{content:'';position:absolute;left:0;bottom:-2px;width:0;height:1px;background:var(--purple);transition:width .3s ease;}
+  .navlinks a:hover::after{width:100%;}
+  .navcta{border:1px solid var(--line-strong);padding:9px 18px;border-radius:100px;font-size:13px;transition:all .25s;}
+  .navcta:hover{border-color:var(--purple);background:var(--purple-dim);}
+  @media (max-width:720px){ .navlinks{display:none;} }
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding-top:200px;padding-bottom:120px;min-height:92vh;display:flex;align-items:center;
+    position:relative;
+  }
+  .hero-glow{
+    position:absolute;top:-10%;right:-10%;width:600px;height:600px;
+    background:radial-gradient(circle,rgba(139,124,255,0.18),transparent 65%);
+    pointer-events:none;filter:blur(10px);
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;position:relative;z-index:2;}
+  @media (max-width:900px){ .hero-grid{grid-template-columns:1fr;} .hero{padding-top:150px;} }
+
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--teal);
+    border:1px solid rgba(69,214,196,0.35);background:var(--teal-dim);
+    padding:6px 12px;border-radius:100px;margin-bottom:24px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:blink 2s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+  .hero h1{font-size:clamp(38px,5.4vw,62px);font-weight:600;line-height:1.08;letter-spacing:-1px;margin-bottom:18px;}
+  .hero h1 .accent{color:var(--purple);}
+  .hero p.lead{font-size:17px;color:var(--text-dim);max-width:520px;margin-bottom:34px;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:44px;}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:13px 24px;border-radius:100px;font-size:14.5px;font-weight:500;
+    transition:all .25s cubic-bezier(.16,1,.3,1);cursor:pointer;
+  }
+  .btn-primary{background:var(--text);color:var(--ink);}
+  .btn-primary:hover{background:var(--purple);color:#fff;transform:translateY(-2px);box-shadow:0 12px 24px -8px rgba(139,124,255,0.5);}
+  .btn-ghost{border:1px solid var(--line-strong);}
+  .btn-ghost:hover{border-color:var(--text-dim);background:var(--surface-2);transform:translateY(-2px);}
+
+  .hero-meta{display:flex;gap:28px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--text-dimmer);flex-wrap:wrap;}
+  .hero-meta span{display:flex;align-items:center;gap:6px;}
+
+  /* ---------- 3-tier stack signature ---------- */
+  .stack{position:relative;height:420px;display:flex;flex-direction:column;justify-content:center;gap:18px;}
+  .tier{
+    position:relative;border-radius:16px;padding:20px 24px;
+    border:1px solid var(--line-strong);backdrop-filter:blur(6px);
+    opacity:0;transform:translateX(60px);
+    animation:tierIn .9s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  .tier:nth-child(1){animation-delay:.15s;background:linear-gradient(135deg,rgba(139,124,255,0.14),rgba(139,124,255,0.03));}
+  .tier:nth-child(2){animation-delay:.35s;background:linear-gradient(135deg,rgba(69,214,196,0.14),rgba(69,214,196,0.03));}
+  .tier:nth-child(3){animation-delay:.55s;background:linear-gradient(135deg,rgba(255,180,84,0.14),rgba(255,180,84,0.03));}
+  @keyframes tierIn{to{opacity:1;transform:translateX(0);}}
+  .tier .tlabel{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dimmer);margin-bottom:6px;}
+  .tier .tname{font-size:17px;font-weight:600;font-family:'Space Grotesk',sans-serif;}
+  .tier:nth-child(1) .tname{color:var(--purple);}
+  .tier:nth-child(2) .tname{color:var(--teal);}
+  .tier:nth-child(3) .tname{color:var(--amber);}
+  .tier .tdesc{font-size:12.5px;color:var(--text-dim);margin-top:4px;}
+
+  .flowline{position:absolute;left:50%;width:2px;background:linear-gradient(180deg,transparent,var(--line-strong),transparent);transform:translateX(-50%);}
+  .flowline.f1{top:78px;height:36px;}
+  .flowline.f2{top:222px;height:36px;}
+  .packet{position:absolute;left:50%;width:6px;height:6px;border-radius:50%;transform:translateX(-50%);box-shadow:0 0 8px currentColor;}
+  .packet.p1{top:78px;color:var(--purple);background:var(--purple);animation:travel1 2.6s ease-in-out infinite;}
+  .packet.p2{top:222px;color:var(--amber);background:var(--amber);animation:travel2 2.6s ease-in-out infinite 1.3s;}
+  @keyframes travel1{0%,100%{top:78px;opacity:0;}10%{opacity:1;}50%{top:112px;opacity:1;}90%{opacity:1;}}
+  @keyframes travel2{0%,100%{top:222px;opacity:0;}10%{opacity:1;}50%{top:256px;opacity:1;}90%{opacity:1;}}
+
+  /* ---------- section headers ---------- */
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--text-dimmer);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+  .kicker::before{content:'';width:22px;height:1px;background:var(--line-strong);}
+  .sec-title{font-size:clamp(26px,3.4vw,38px);font-weight:600;margin-bottom:16px;letter-spacing:-.5px;}
+  .sec-lead{color:var(--text-dim);font-size:15.5px;max-width:600px;}
+
+  .divider3{display:flex;height:3px;width:64px;border-radius:4px;overflow:hidden;margin:8px 0 0;}
+  .divider3 span{flex:1;}
+  .divider3 .a{background:var(--purple);} .divider3 .b{background:var(--teal);} .divider3 .c{background:var(--amber);}
+
+  /* ---------- about ---------- */
+  .about-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:60px;margin-top:50px;}
+  @media (max-width:820px){ .about-grid{grid-template-columns:1fr;} }
+  .about-text p{color:var(--text-dim);font-size:15.5px;margin-bottom:16px;}
+  .about-text strong{color:var(--text);font-weight:600;}
+  .facts{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;}
+  .fact{display:flex;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);font-size:14px;}
+  .fact:last-child{border-bottom:none;}
+  .fact span:first-child{color:var(--text-dimmer);font-family:'IBM Plex Mono',monospace;font-size:12px;}
+  .fact span:last-child{color:var(--text);text-align:right;}
+
+  /* ---------- skills ---------- */
+  .skill-cats{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:50px;}
+  @media (max-width:900px){ .skill-cats{grid-template-columns:1fr 1fr;} }
+  @media (max-width:600px){ .skill-cats{grid-template-columns:1fr;} }
+  .skillcat{
+    border:1px solid var(--line);border-radius:var(--radius);padding:24px;background:var(--surface);
+    transition:border-color .3s, transform .3s;
+  }
+  .skillcat:hover{border-color:var(--line-strong);transform:translateY(-4px);}
+  .skillcat h3{font-size:14px;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .skillcat .swatch{width:8px;height:8px;border-radius:2px;}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;}
+  .tag{
+    font-size:12.5px;padding:6px 12px;border-radius:8px;background:var(--surface-2);
+    border:1px solid var(--line);color:var(--text-dim);
+  }
+
+  /* colored category accents */
+  .skillcat.c-purple .swatch{background:var(--purple);} .skillcat.c-purple h3{color:var(--purple);}
+  .skillcat.c-teal .swatch{background:var(--teal);} .skillcat.c-teal h3{color:var(--teal);}
+  .skillcat.c-amber .swatch{background:var(--amber);} .skillcat.c-amber h3{color:var(--amber);}
+
+  /* ---------- journey timeline ---------- */
+  .timeline{margin-top:50px;position:relative;padding-left:28px;border-left:1px solid var(--line-strong);}
+  .tl-item{position:relative;padding-bottom:34px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{content:'';position:absolute;left:-33px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--purple);}
+  .tl-item h4{font-size:15.5px;font-weight:600;margin-bottom:6px;}
+  .tl-item p{font-size:14px;color:var(--text-dim);}
+
+  /* ---------- projects ---------- */
+  .project{
+    display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;
+    padding:50px 0;border-bottom:1px solid var(--line);
+  }
+  .project:last-child{border-bottom:none;}
+  .project:nth-child(even){direction:rtl;}
+  .project:nth-child(even) .proj-info{direction:ltr;}
+  .project:nth-child(even) .proj-visual{direction:ltr;}
+  @media (max-width:860px){ .project, .project:nth-child(even){grid-template-columns:1fr;direction:ltr;} }
+
+  .proj-status{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:5px 10px;border-radius:100px;margin-bottom:14px;}
+  .status-progress{color:var(--amber);background:var(--amber-dim);border:1px solid rgba(255,180,84,.35);}
+  .status-done{color:var(--teal);background:var(--teal-dim);border:1px solid rgba(69,214,196,.35);}
+
+  .proj-info h3{font-size:24px;font-weight:600;margin-bottom:10px;}
+  .proj-info .stack-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+  .proj-info .stack-tags span{font-size:11.5px;font-family:'IBM Plex Mono',monospace;color:var(--text-dimmer);border:1px solid var(--line);padding:4px 9px;border-radius:6px;}
+  .proj-info ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+  .proj-info li{font-size:14px;color:var(--text-dim);padding-left:18px;position:relative;}
+  .proj-info li::before{content:'▸';position:absolute;left:0;color:var(--purple);}
+  .proj-layers{display:flex;gap:6px;margin-top:18px;}
+  .layer-chip{font-size:10.5px;font-family:'IBM Plex Mono',monospace;padding:4px 8px;border-radius:6px;opacity:.5;border:1px solid var(--line);}
+  .layer-chip.active{opacity:1;}
+  .layer-chip.p{color:var(--purple);border-color:rgba(139,124,255,.4);}
+  .layer-chip.b{color:var(--teal);border-color:rgba(69,214,196,.4);}
+  .layer-chip.d{color:var(--amber);border-color:rgba(255,180,84,.4);}
+
+  .proj-visual{
+    background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    padding:22px;position:relative;overflow:hidden;transition:transform .4s cubic-bezier(.16,1,.3,1), border-color .4s;
+  }
+  .proj-visual:hover{transform:translateY(-6px);border-color:var(--line-strong);}
+  .proj-visual svg{width:100%;height:auto;display:block;}
+
+  /* ---------- education ---------- */
+  .edu-card{
+    margin-top:50px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);
+    padding:36px;display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap;
+  }
+  .edu-card h3{font-size:19px;margin-bottom:6px;}
+  .edu-card p{color:var(--text-dim);font-size:14.5px;}
+  .progress-wrap{min-width:220px;}
+  .progress-label{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-dimmer);margin-bottom:8px;}
+  .progress-bar{height:6px;background:var(--surface-2);border-radius:100px;overflow:hidden;}
+  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--teal));border-radius:100px;transition:width 1.4s cubic-bezier(.16,1,.3,1);}
+  .progress-wrap.in .progress-fill{width:78%;}
+
+  .lang-row{display:flex;gap:14px;margin-top:26px;}
+  .lang-pill{padding:8px 16px;border:1px solid var(--line);border-radius:100px;font-size:13px;color:var(--text-dim);display:flex;align-items:center;gap:8px;}
+  .lang-pill .bars{display:flex;gap:2px;}
+  .lang-pill .bars i{width:3px;height:10px;background:var(--line-strong);border-radius:1px;}
+  .lang-pill .bars i.on{background:var(--teal);}
+
+  /* ---------- contact ---------- */
+  .contact-box{
+    margin-top:50px;border:1px solid var(--line);border-radius:20px;
+    background:linear-gradient(145deg,var(--surface),var(--surface-2));
+    padding:60px;text-align:center;position:relative;overflow:hidden;
+  }
+  .contact-box::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 30% 20%,rgba(139,124,255,.12),transparent 55%),radial-gradient(circle at 80% 80%,rgba(255,180,84,.1),transparent 55%);
+    pointer-events:none;
+  }
+  .contact-box h2{font-size:clamp(26px,3.6vw,38px);margin-bottom:14px;position:relative;}
+  .contact-box p{color:var(--text-dim);margin-bottom:32px;position:relative;max-width:480px;margin-inline:auto;}
+  .contact-links{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;}
+
+  footer{padding:36px 0;border-top:1px solid var(--line);}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--text-dimmer);flex-wrap:wrap;gap:10px;}
+  footer .mono{color:var(--text-dimmer);}
+
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--ink);}
+  ::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:10px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="#top" class="logo"><span class="tag">&lt;</span>Ibrahem Slman<span class="tag">/&gt;</span></a>
+    <div class="navlinks">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#education">Education</a>
+    </div>
+    <a class="navcta" href="mailto:ibrahemslmanbusiness@gmail.com">Get in touch</a>
+  </div>
+</nav>
+
+<div id="top"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> Available for backend internships</div>
+      <h1>Building backend systems<br>the <span class="accent">.NET</span> way.</h1>
+      <p class="lead">4th-year Software Engineering student from Damascus, Syria — specializing in C#, SQL Server, and 3-tier architecture, currently extending into ASP.NET Core &amp; RESTful APIs.</p>
+      <div class="hero-actions">
+        <a href="#projects" class="btn btn-primary">View projects →</a>
+        <a href="mailto:ibrahemslmanbusiness@gmail.com" class="btn btn-ghost">Say hello</a>
+      </div>
+      <div class="hero-meta">
+        <span>📍 Damascus, Syria</span>
+        <span>🎓 B.Sc. Software Engineering, 2027</span>
+        <span>🗣 Arabic · English</span>
+      </div>
+    </div>
+
+    <div class="stack" aria-hidden="true">
+      <div class="flowline f1"></div>
+      <div class="flowline f2"></div>
+      <div class="packet p1"></div>
+      <div class="packet p2"></div>
+      <div class="tier">
+        <div class="tlabel">Layer 01</div>
+        <div class="tname">Presentation</div>
+        <div class="tdesc">WinForms UI · request validation · auth screens</div>
+      </div>
+      <div class="tier">
+        <div class="tlabel">Layer 02</div>
+        <div class="tname">Business Logic</div>
+        <div class="tdesc">Workflows · permissions · rules engine</div>
+      </div>
+      <div class="tier">
+        <div class="tlabel">Layer 03</div>
+        <div class="tname">Data Access</div>
+        <div class="tdesc">ADO.NET · SQL Server · CRUD operations</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap reveal">
+    <div class="kicker">01 · About</div>
+    <h2 class="sec-title">Backend-first, architecture-minded.</h2>
+    <div class="divider3"><span class="a"></span><span class="b"></span><span class="c"></span></div>
+
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm a dedicated software engineering student who found a home in backend development — specifically in the discipline of the <strong>.NET ecosystem</strong>. I like systems that are organized before they're clever: clean separation between presentation, business logic and data access, predictable CRUD, and permissions that actually restrict what they say they restrict.</p>
+        <p>Most of my recent work has been building real, multi-module systems in <strong>C#</strong> and <strong>SQL Server</strong> — from a full licensing department platform to a REST API from scratch — while I extend that foundation into <strong>ASP.NET Core</strong> to build for the web instead of just the desktop.</p>
+        <p>I'm currently looking for an internship where I can bring that foundation into a real codebase, learn from an experienced team, and start shipping production backend work.</p>
+      </div>
+      <div class="facts">
+        <div class="fact"><span>LOCATION</span><span>Damascus, Syria</span></div>
+        <div class="fact"><span>ROLE</span><span>Backend Developer</span></div>
+        <div class="fact"><span>ECOSYSTEM</span><span>.NET / C#</span></div>
+        <div class="fact"><span>EDUCATION</span><span>B.Sc. Software Eng. — 2027</span></div>
+        <div class="fact"><span>UNIVERSITY</span><span>Yarmouk Private University</span></div>
+        <div class="fact"><span>CONTACT</span><span>0988468513</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="wrap reveal">
+    <div class="kicker">02 · Skills</div>
+    <h2 class="sec-title">The toolbox, layer by layer.</h2>
+    <p class="sec-lead">Grouped the way I think about a system — what the user touches, what governs behavior, and what stores the truth.</p>
+
+    <div class="skill-cats reveal-stagger">
+      <div class="skillcat c-purple">
+        <h3><span class="swatch"></span>LANGUAGES</h3>
+        <div class="tags">
+          <span class="tag">C#</span><span class="tag">C++</span><span class="tag">SQL</span>
+        </div>
+      </div>
+      <div class="skillcat c-teal">
+        <h3><span class="swatch"></span>ARCHITECTURE &amp; DESIGN</h3>
+        <div class="tags">
+          <span class="tag">OOP</span><span class="tag">3-Tier Architecture</span><span class="tag">SOLID</span><span class="tag">Auth &amp; Authorization</span><span class="tag">Problem Solving</span>
+        </div>
+      </div>
+      <div class="skillcat c-amber">
+        <h3><span class="swatch"></span>DATABASES</h3>
+        <div class="tags">
+          <span class="tag">Microsoft SQL Server</span><span class="tag">Database Design</span>
+        </div>
+      </div>
+      <div class="skillcat c-purple">
+        <h3><span class="swatch"></span>BACKEND DEVELOPMENT</h3>
+        <div class="tags">
+          <span class="tag">.NET Framework</span><span class="tag">WinForms</span><span class="tag">ADO.NET</span><span class="tag">RESTful APIs</span><span class="tag">ASP.NET Core (basics)</span>
+        </div>
+      </div>
+      <div class="skillcat c-teal">
+        <h3><span class="swatch"></span>TOOLS &amp; METHOD</h3>
+        <div class="tags">
+          <span class="tag">Git / GitHub</span><span class="tag">Debugging</span><span class="tag">Swagger / API testing</span>
+        </div>
+      </div>
+      <div class="skillcat c-amber">
+        <h3><span class="swatch"></span>CURRENTLY LEARNING</h3>
+        <div class="tags">
+          <span class="tag">ASP.NET Core</span><span class="tag">Scalable Web APIs</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline reveal">
+      <div class="tl-item">
+        <h4>Foundations — C++, Data Structures &amp; OOP</h4>
+        <p>Mastered core programming and data structures through rigorous problem-solving challenges.</p>
+      </div>
+      <div class="tl-item">
+        <h4>First real system — Banking System project</h4>
+        <p>Built a comprehensive banking system, focused on efficient data handling and logical flow.</p>
+      </div>
+      <div class="tl-item">
+        <h4>Transition to .NET — C# &amp; SQL Server</h4>
+        <p>Advanced into .NET C# development, specializing in backend architecture and database design.</p>
+      </div>
+      <div class="tl-item">
+        <h4>Applying it to real-world projects</h4>
+        <p>Proven ability to move between C++ and C#, applying CS fundamentals to production-style systems.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="wrap">
+    <div class="kicker reveal">03 · Projects</div>
+    <h2 class="sec-title reveal">Systems I've built.</h2>
+    <p class="sec-lead reveal">Three projects, three different slices of the backend stack — desktop, API, and pure data. Diagrams below are illustrative reconstructions of each system's flow, not live screenshots.</p>
+
+    <!-- PROJECT 1: DVLD -->
+    <div class="project reveal">
+      <div class="proj-info">
+        <span class="proj-status status-progress">● IN PROGRESS</span>
+        <h3>Driver &amp; Vehicle Licensing Department (DVLD) System</h3>
+        <div class="stack-tags"><span>C#</span><span>.NET</span><span>Windows Forms</span><span>MS SQL Server</span><span>ADO.NET</span></div>
+        <ul>
+          <li>Multi-module licensing management system covering issuance, renewal, replacement and examinations.</li>
+          <li>Secure user authentication with role-based authorization restricting sensitive operations.</li>
+          <li>Database-driven modules with optimized CRUD built on 3-tier architecture for maintainability.</li>
+        </ul>
+        <div class="proj-layers">
+          <span class="layer-chip p active">Presentation</span>
+          <span class="layer-chip b active">Business</span>
+          <span class="layer-chip d active">Data</span>
+        </div>
+      </div>
+      <div class="proj-visual">
+        <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="480" height="320" rx="12" fill="#12151f"/>
+          <rect x="0" y="0" width="480" height="30" rx="12" fill="#1a1f2e"/>
+          <circle cx="18" cy="15" r="4" fill="#ff6b6b"/><circle cx="32" cy="15" r="4" fill="#ffb454"/><circle cx="46" cy="15" r="4" fill="#45d6c4"/>
+          <text x="240" y="19" text-anchor="middle" fill="#5f6a85" font-family="IBM Plex Mono, monospace" font-size="10">DVLD.exe — License Issuance</text>
+          <!-- sidebar -->
+          <rect x="0" y="30" width="110" height="290" fill="#161a26"/>
+          <g font-family="IBM Plex Mono, monospace" font-size="10" fill="#96a0b8">
+            <rect x="10" y="46" width="90" height="24" rx="6" fill="#8b7cff" opacity="0.18"/>
+            <text x="20" y="62" fill="#8b7cff">Issue License</text>
+            <text x="20" y="94">Renewals</text>
+            <text x="20" y="126">Replacements</text>
+            <text x="20" y="158">Examinations</text>
+            <text x="20" y="190">Applicants</text>
+            <text x="20" y="222">Users</text>
+          </g>
+          <!-- form -->
+          <g font-family="IBM Plex Mono, monospace" font-size="10">
+            <text x="130" y="56" fill="#5f6a85">APPLICANT NAME</text>
+            <rect x="130" y="62" width="150" height="22" rx="5" fill="#1a1f2e" stroke="#2a3145"/>
+            <text x="138" y="77" fill="#eef0f6">Yousef Al-Ahmad</text>
+
+            <text x="290" y="56" fill="#5f6a85">LICENSE CLASS</text>
+            <rect x="290" y="62" width="150" height="22" rx="5" fill="#1a1f2e" stroke="#2a3145"/>
+            <text x="298" y="77" fill="#eef0f6">Private Vehicle</text>
+
+            <text x="130" y="100" fill="#5f6a85">STATUS</text>
+            <rect x="130" y="106" width="70" height="20" rx="10" fill="#45d6c4" opacity="0.18"/>
+            <text x="145" y="120" fill="#45d6c4">Active</text>
+
+            <rect x="330" y="102" width="110" height="26" rx="6" fill="#8b7cff"/>
+            <text x="345" y="119" fill="#0a0c12" font-weight="600">Issue License</text>
+          </g>
+          <!-- table -->
+          <g font-family="IBM Plex Mono, monospace" font-size="9.5">
+            <line x1="130" y1="146" x2="440" y2="146" stroke="#2a3145"/>
+            <text x="130" y="162" fill="#5f6a85">ID</text>
+            <text x="170" y="162" fill="#5f6a85">NAME</text>
+            <text x="300" y="162" fill="#5f6a85">CLASS</text>
+            <text x="390" y="162" fill="#5f6a85">STATUS</text>
+            <line x1="130" y1="170" x2="440" y2="170" stroke="#20263a"/>
+            <g class="row" style="animation:rowIn .5s ease forwards;opacity:0;animation-delay:.2s">
+              <text x="130" y="188" fill="#c7cce0">1042</text>
+              <text x="170" y="188" fill="#c7cce0">Yousef Al-Ahmad</text>
+              <text x="300" y="188" fill="#c7cce0">Private</text>
+              <text x="390" y="188" fill="#45d6c4">Active</text>
+            </g>
+            <line x1="130" y1="198" x2="440" y2="198" stroke="#20263a"/>
+            <g class="row" style="animation:rowIn .5s ease forwards;opacity:0;animation-delay:.4s">
+              <text x="130" y="216" fill="#c7cce0">1041</text>
+              <text x="170" y="216" fill="#c7cce0">Lina Hassan</text>
+              <text x="300" y="216" fill="#c7cce0">Motorcycle</text>
+              <text x="390" y="216" fill="#ffb454">Pending</text>
+            </g>
+            <line x1="130" y1="226" x2="440" y2="226" stroke="#20263a"/>
+            <g class="row" style="animation:rowIn .5s ease forwards;opacity:0;animation-delay:.6s">
+              <text x="130" y="244" fill="#c7cce0">1040</text>
+              <text x="170" y="244" fill="#c7cce0">Omar Rifai</text>
+              <text x="300" y="244" fill="#c7cce0">Private</text>
+              <text x="390" y="244" fill="#ff6b6b">Expired</text>
+            </g>
+          </g>
+          <style>@keyframes rowIn{to{opacity:1;}}</style>
+        </svg>
+      </div>
+    </div>
+
+    <!-- PROJECT 2: Students API -->
+    <div class="project reveal">
+      <div class="proj-info">
+        <span class="proj-status status-done">● COMPLETED</span>
+        <h3>Students Management Web API</h3>
+        <div class="stack-tags"><span>C#</span><span>ASP.NET Core</span><span>RESTful APIs</span><span>MS SQL Server</span><span>ADO.NET</span></div>
+        <ul>
+          <li>REST API built from scratch to manage student records and academic data.</li>
+          <li>Full HTTP verb coverage — GET, POST, PUT, DELETE — with clean, predictable endpoint routing.</li>
+          <li>Server-side validation logic guarding data integrity against faulty entries.</li>
+        </ul>
+        <div class="proj-layers">
+          <span class="layer-chip p">Presentation</span>
+          <span class="layer-chip b active">Business</span>
+          <span class="layer-chip d active">Data</span>
+        </div>
+      </div>
+      <div class="proj-visual">
+        <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="480" height="320" rx="12" fill="#12151f"/>
+          <!-- client -->
+          <rect x="24" y="40" width="110" height="60" rx="8" fill="#1a1f2e" stroke="#2a3145"/>
+          <text x="79" y="65" text-anchor="middle" fill="#eef0f6" font-family="IBM Plex Mono, monospace" font-size="11">Client</text>
+          <text x="79" y="82" text-anchor="middle" fill="#5f6a85" font-family="IBM Plex Mono, monospace" font-size="9">HTTP request</text>
+          <!-- api -->
+          <rect x="185" y="30" width="140" height="130" rx="8" fill="#1a1f2e" stroke="#45d6c4" stroke-opacity="0.4"/>
+          <text x="255" y="52" text-anchor="middle" fill="#45d6c4" font-family="IBM Plex Mono, monospace" font-size="11">StudentsController</text>
+          <g font-family="IBM Plex Mono, monospace" font-size="10">
+            <rect x="197" y="64" width="38" height="18" rx="4" fill="#45d6c4" opacity="0.18"/><text x="216" y="77" text-anchor="middle" fill="#45d6c4">GET</text>
+            <rect x="241" y="64" width="42" height="18" rx="4" fill="#8b7cff" opacity="0.18"/><text x="262" y="77" text-anchor="middle" fill="#8b7cff">POST</text>
+            <rect x="197" y="88" width="36" height="18" rx="4" fill="#ffb454" opacity="0.18"/><text x="215" y="101" text-anchor="middle" fill="#ffb454">PUT</text>
+            <rect x="239" y="88" width="46" height="18" rx="4" fill="#ff6b6b" opacity="0.18"/><text x="262" y="101" text-anchor="middle" fill="#ff6b6b">DELETE</text>
+            <text x="255" y="128" text-anchor="middle" fill="#5f6a85" font-size="9">validate → map → respond</text>
+          </g>
+          <!-- db -->
+          <g transform="translate(376,60)">
+            <ellipse cx="30" cy="6" rx="30" ry="9" fill="#ffb454" opacity="0.25"/>
+            <rect x="0" y="6" width="60" height="40" fill="#ffb454" opacity="0.12"/>
+            <ellipse cx="30" cy="46" rx="30" ry="9" fill="#ffb454" opacity="0.25"/>
+            <text x="30" y="65" text-anchor="middle" fill="#ffb454" font-family="IBM Plex Mono, monospace" font-size="9">SQL Server</text>
+          </g>
+          <!-- arrows -->
+          <path d="M134 70 H185" stroke="#5f6a85" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+          <path d="M325 95 H376" stroke="#5f6a85" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#5f6a85"/>
+            </marker>
+          </defs>
+          <!-- json snippet -->
+          <rect x="24" y="190" width="432" height="104" rx="8" fill="#0e1119" stroke="#2a3145"/>
+          <text x="38" y="212" font-family="IBM Plex Mono, monospace" font-size="10" fill="#5f6a85">GET /api/students/1042 → 200 OK</text>
+          <text x="38" y="232" font-family="IBM Plex Mono, monospace" font-size="10" fill="#8b7cff">{</text>
+          <text x="50" y="250" font-family="IBM Plex Mono, monospace" font-size="10"><tspan fill="#45d6c4">"id"</tspan><tspan fill="#c7cce0">: 1042,</tspan></text>
+          <text x="50" y="268" font-family="IBM Plex Mono, monospace" font-size="10"><tspan fill="#45d6c4">"name"</tspan><tspan fill="#c7cce0">: "Sara Malas",</tspan></text>
+          <text x="50" y="286" font-family="IBM Plex Mono, monospace" font-size="10"><tspan fill="#45d6c4">"gpa"</tspan><tspan fill="#c7cce0">: 3.7</tspan></text>
+          <text x="38" y="300" font-family="IBM Plex Mono, monospace" font-size="10" fill="#8b7cff">}</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- PROJECT 3: Contacts -->
+    <div class="project reveal">
+      <div class="proj-info">
+        <span class="proj-status status-done">● COMPLETED</span>
+        <h3>Contacts Management System</h3>
+        <div class="stack-tags"><span>C#</span><span>ADO.NET</span><span>SQL Server</span></div>
+        <ul>
+          <li>Secure desktop application for managing system contacts end-to-end.</li>
+          <li>Full CRUD operations with 3-tier architecture and validated data input.</li>
+        </ul>
+        <div class="proj-layers">
+          <span class="layer-chip p active">Presentation</span>
+          <span class="layer-chip b active">Business</span>
+          <span class="layer-chip d active">Data</span>
+        </div>
+      </div>
+      <div class="proj-visual">
+        <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="480" height="320" rx="12" fill="#12151f"/>
+          <rect x="0" y="0" width="480" height="30" rx="12" fill="#1a1f2e"/>
+          <circle cx="18" cy="15" r="4" fill="#ff6b6b"/><circle cx="32" cy="15" r="4" fill="#ffb454"/><circle cx="46" cy="15" r="4" fill="#45d6c4"/>
+          <text x="240" y="19" text-anchor="middle" fill="#5f6a85" font-family="IBM Plex Mono, monospace" font-size="10">ContactsManager — All Contacts</text>
+
+          <!-- list -->
+          <g font-family="IBM Plex Mono, monospace" font-size="10">
+            <rect x="24" y="46" width="260" height="34" rx="6" fill="#1a1f2e" stroke="#2a3145"/>
+            <circle cx="42" cy="63" r="10" fill="#8b7cff" opacity="0.25"/><text x="42" y="67" text-anchor="middle" fill="#8b7cff">RH</text>
+            <text x="60" y="60" fill="#eef0f6">Rami Haddad</text><text x="60" y="73" fill="#5f6a85" font-size="8.5">+963 988 xx xx xx</text>
+
+            <rect x="24" y="86" width="260" height="34" rx="6" fill="#1a1f2e" stroke="#2a3145"/>
+            <circle cx="42" cy="103" r="10" fill="#45d6c4" opacity="0.25"/><text x="42" y="107" text-anchor="middle" fill="#45d6c4">NK</text>
+            <text x="60" y="100" fill="#eef0f6">Nour Khalil</text><text x="60" y="113" fill="#5f6a85" font-size="8.5">nour.k@mail.com</text>
+
+            <rect x="24" y="126" width="260" height="34" rx="6" fill="#1a1f2e" stroke="#2a3145"/>
+            <circle cx="42" cy="143" r="10" fill="#ffb454" opacity="0.25"/><text x="42" y="147" text-anchor="middle" fill="#ffb454">TA</text>
+            <text x="60" y="140" fill="#eef0f6">Tarek Aziz</text><text x="60" y="153" fill="#5f6a85" font-size="8.5">Damascus, Syria</text>
+          </g>
+
+          <!-- edit panel -->
+          <g font-family="IBM Plex Mono, monospace" font-size="9.5">
+            <rect x="300" y="46" width="156" height="238" rx="8" fill="#161a26" stroke="#2a3145"/>
+            <text x="315" y="66" fill="#5f6a85">EDIT CONTACT</text>
+            <text x="315" y="90" fill="#5f6a85" font-size="8.5">FULL NAME</text>
+            <rect x="315" y="96" width="126" height="20" rx="4" fill="#1a1f2e" stroke="#2a3145"/>
+            <text x="322" y="110" fill="#eef0f6">Rami Haddad</text>
+            <text x="315" y="130" fill="#5f6a85" font-size="8.5">PHONE</text>
+            <rect x="315" y="136" width="126" height="20" rx="4" fill="#1a1f2e" stroke="#2a3145"/>
+            <text x="322" y="150" fill="#eef0f6">0988xxxxxx</text>
+            <text x="315" y="170" fill="#5f6a85" font-size="8.5">EMAIL</text>
+            <rect x="315" y="176" width="126" height="20" rx="4" fill="#1a1f2e" stroke="#2a3145"/>
+            <text x="322" y="190" fill="#eef0f6">rami@mail.com</text>
+            <rect x="315" y="240" width="126" height="24" rx="6" fill="#45d6c4"/>
+            <text x="378" y="257" text-anchor="middle" fill="#0a0c12" font-weight="600">Save changes</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="wrap reveal">
+    <div class="kicker">04 · Education</div>
+    <h2 class="sec-title">Currently in progress.</h2>
+
+    <div class="edu-card">
+      <div>
+        <h3>Bachelor of Software Engineering</h3>
+        <p>Yarmouk Private University, Syria — expected 2027</p>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>4TH YEAR</span><span>~78% COMPLETE</span></div>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="lang-row">
+      <div class="lang-pill"><span>Arabic</span><span class="bars"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+      <div class="lang-pill"><span>English</span><span class="bars"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap reveal">
+    <div class="contact-box">
+      <h2>Let's build something backend.</h2>
+      <p>Open to backend / .NET internships and junior roles — happy to talk through any of the projects above in more depth.</p>
+      <div class="contact-links">
+        <a class="btn btn-primary" href="mailto:ibrahemslmanbusiness@gmail.com">✉ ibrahemslmanbusiness@gmail.com</a>
+        <a class="btn btn-ghost" href="tel:0988468513">📞 0988 468 513</a>
+        <a class="btn btn-ghost" href="#">in/Ibrahem Slman</a>
+        <a class="btn btn-ghost" href="#">⌥ ELibrahem</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Ibrahem Mohammad Slman</span>
+    <span class="mono">Built with C# energy, shipped in HTML.</span>
+  </div>
+</footer>
+
+<script>
+  // scroll reveal
+  const revealEls = document.querySelectorAll('.reveal, .reveal-stagger, .progress-wrap');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.15});
+  revealEls.forEach(el=>io.observe(el));
+
+  // stagger delay for skill tags children
+  document.querySelectorAll('.reveal-stagger').forEach(group=>{
+    Array.from(group.children).forEach((child,i)=>{
+      child.style.transitionDelay = (i*0.06)+'s';
+    });
+  });
+
+  // hero mouse-follow glow
+  const glow = document.querySelector('.hero-glow');
+  const heroSection = document.querySelector('.hero');
+  if(glow && heroSection && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    heroSection.addEventListener('mousemove',(e)=>{
+      const r = heroSection.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      glow.style.transform = `translate(${(x-r.width*0.85)*0.15}px, ${(y-r.height*0.1)*0.15}px)`;
+    });
+  }
+</script>
+
+</body>
+</html>
